@@ -17,9 +17,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from chat.views import chat_view
+from chat.views import chat_view, reload_chat
 
 urlpatterns = [
     path('', lambda req: redirect('/chat')),
     path('chat/', chat_view, name='chat'),
+    path('chat/reload', reload_chat, name='reload_chat'),
 ]
