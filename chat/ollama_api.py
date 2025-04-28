@@ -3,16 +3,19 @@ import ollama
 import random
 from faker import Faker
 
+
+class Patient:
+    def __init__(self, age, level, intensity, name, job, spirits):
+        self.age = age
+        self.level = level
+        self.intensity = intensity
+        self.name = name
+        self.job = job
+        self.spirits = spirits
+
 fake = Faker()
 model_name = 'granite3.2:latest'
-
-age = random.randrange(21,60)
-level = random.choice(["minor","major","critical"])
-intensity = random.choice(["low","medium","high"])
-name = fake.name()
-job = fake.job()
-spirits = random.choice(["low","medium","high"])
-csv_file = "patient_profiles.csv"
+csv_file = "profiles/adult_patient_profiles.csv"
 
 def read_csv(csv_file):
     with open(csv_file, "r") as f:
@@ -25,7 +28,7 @@ def read_csv(csv_file):
 data_list = read_csv(csv_file)
 individuals = random.choices(data_list,k=4)
 
-def generate_response(user_input):
+def create_json_content(patient):
         messages = [
 {"role": "user", "content": f"""
 You are a patient designed for a doctor to practice Motivation Interviewing based off of the following individuals:
@@ -35,25 +38,43 @@ You are a patient designed for a doctor to practice Motivation Interviewing base
 """
 },
 {"role": "system", "content": f"""
-You're name is {name} and are {age} and a professional {job} but has some type
- of {level} health issue, that is inspired from these previous individuals. You
- want to be {intensity} level of attitude to get help and you seem in {spirits}
- level of happiness. Only describe the name and general information about the
+You're name is {patient.name} and are {patient.age} and a professional
+ {patient.job} but has some type of {patient.level} health issue, that is inspired from these previous individuals. You
+ want to be {patient.intensity} level of attitude to get help and you seem in
+ {patient.spirits} level of happiness. Only describe the name and general information about the
  individual you create, you're job is to work with the person asking the
  questions to have them figure out how to have them make healthy choices.
 """
 },
 ]
-        response = ollama.chat(model=model_name, messages=messages)
-        messages.append({"role": "user", "content": user_input})
-        response = ollama.chat(model=model_name, messages=messages)
-        answer = response.message.content
-        messages.append({"role": "assistant", "content": answer})
-        output_dict = {"content": answer,
-                       "name": name,
-                       "age": age,
-                       "job": job,
-                       "spirits": spirits,
-                       "help": intensity
-                      }
-        return output_dict
+        return messages
+
+def create_patient():
+    age = random.randrange(21,60)
+    level = random.choice(["minor","major","critical"])
+    intensity = random.choice(["low","medium","high"])
+    name = fake.name()
+    job = fake.job()
+    spirits = random.choice(["low","medium","high"])
+
+    patient = Patient(age,level, intensity, name, job, spirits)
+    return patient
+
+def create_messages(patient):
+    messages = create_json_content(patient)
+    return messages
+
+def generate_response(user_input, messages, patient):
+    response = ollama.chat(model=model_name, messages=messages)
+    messages.append({"role": "user", "content": user_input})
+    response = ollama.chat(model=model_name, messages=messages)
+    answer = response.message.content
+    messages.append({"role": "assistant", "content": answer})
+    output_dict = {"content": answer,
+                   "name": patient.name,
+                   "age": patient.age,
+                   "job": patient.job,
+                   "spirits": patient.spirits,
+                   "help": patient.intensity
+                  }
+    return output_dict
