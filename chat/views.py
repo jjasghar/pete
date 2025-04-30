@@ -7,23 +7,33 @@ import json
 
 # Create your views here.
 
-patient = create_patient()
-messages = create_messages(patient)
+patient = None
+messages = None
 
 @csrf_exempt
 def chat_view(request):
+
+    global patient
+    global messages
+
+    if patient is None:
+        patient = create_patient()
+        messages = create_messages(patient)
+
+    context = {"name": patient.name, "age": patient.age, "job": patient.job}
     if request.method == "POST":
-        user_input = request.POST["message"]
-        prompt = f"User: {user_input}\nAI:"
-        response = generate_response(prompt, messages, patient)
-        out = JsonResponse(response)
-        return out
-    return render(request, "chat.html")
+       prompt = request.POST["message"]
+       response = generate_response(prompt, messages, patient)
+       out = JsonResponse(response)
+       return out
+    return render(request, "chat.html", context)
 
 def reload_chat(request):
+
+    global patient
+    global messages
+
     messages = None
     patient = None
-    patient = create_patient()
-    messages = create_messages(patient)
     response = chat_view(request)
     return response
