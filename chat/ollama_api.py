@@ -1,8 +1,9 @@
 import csv
 import ollama
+import os
 import random
 from faker import Faker
-
+from ollama import Client
 
 class Patient:
     def __init__(self, age, level, intensity, name, job, spirits):
@@ -16,6 +17,7 @@ class Patient:
 fake = Faker()
 model_name = 'granite3.2:latest'
 csv_file = "profiles/adult_patient_profiles.csv"
+ollama_host = os.environ.get('OLLAMA_SELF_HOST', '127.0.0.1')
 
 def read_csv(csv_file):
     with open(csv_file, "r") as f:
@@ -65,9 +67,12 @@ def create_messages(patient):
     return messages
 
 def generate_response(user_input, messages, patient):
-    response = ollama.chat(model=model_name, messages=messages)
+    client = Client(
+          host=f'http://{ollama_host}:11434',
+    )
+    response = client.chat(model=model_name, messages=messages)
     messages.append({"role": "user", "content": user_input})
-    response = ollama.chat(model=model_name, messages=messages)
+    response = client.chat(model=model_name, messages=messages)
     answer = response.message.content
     messages.append({"role": "assistant", "content": answer})
     output_dict = {"content": answer,

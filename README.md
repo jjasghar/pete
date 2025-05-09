@@ -5,7 +5,26 @@
 This is a helper application for Medical Students to work on their Motiviational Interviewing. The application
 helps the Students ask questions and figure out what is wrong with their patient.
 
-## Prereqs
+## Podman install
+
+1. Have [ollama][ollama] installed.
+2. Have [podman-desktop][podman] installed.
+   ```bash
+   brew install podman-desktop
+   ```
+3. Have [podman-compose][podmancompose] installed.
+   ```bash
+   brew install podman-compose
+   ```
+4. Check out the repository:
+   ```bash
+   git clone https://github.com/jjasghar/troublesome-patient
+   cd troublesome-patient
+   ```
+5. Run the `./setup.sh` script. (you only need to do it "once")
+6. Start and stop the application with `./start.sh` and `./stop.sh` to your hearts content.
+
+## Manual install
 
 0. Have [ollama][ollama] installed and `granite3.2` installed.
    ```bash
@@ -41,7 +60,6 @@ Open: Visit <http://localhost:8000/chat/> to start chatting with your Troublesom
 
 - A way to export/save the conversation.
 - Another "app" to take the log and give suggestions on ways to improve the conversation.
-- Simple installation process, or at least a scripted install/run process.
 
 ## License & Authors
 
@@ -66,3 +84,5 @@ limitations under the License.
 ```
 
 [ollama]: https://ollama.com
+[podman]: https://podman-desktop.io
+[podmancompose]: https://github.com/containers/podman-compose?tab=readme-ov-file#installation
