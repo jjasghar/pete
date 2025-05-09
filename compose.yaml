@@ -1,0 +1,38 @@
+services:
+
+  ollama:
+    build:
+      context: ./
+      dockerfile: ./podman_files/Containerfile.ollama
+      no_cache: true
+    container_name: ollama
+    image: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_volume:/root/.ollama
+    tty: true
+    network:
+      - com
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+
+  web:
+    container_name: web
+    build:
+      context: ./
+      dockerfile: ./podman_files/Containerfile.troublesome
+    ports:
+      - "8000:8000"
+    network:
+      - com
+    environment:
+        - OLLAMA_SELF_HOST=ollama
+
+volumes:
+  ollama_volume:
+
+networks:
+  com: {}
