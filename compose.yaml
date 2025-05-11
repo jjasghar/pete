@@ -30,9 +30,12 @@ services:
       - com
     environment:
         - OLLAMA_SELF_HOST=ollama
+    volumes:
+      - ./previous_chats:/app/previous_chats
 
 volumes:
   ollama_volume:
+  previous_chats:
 
 networks:
   com: {}
