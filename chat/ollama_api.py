@@ -49,6 +49,15 @@ You're name is {patient.name} and are {patient.age} and a professional
  questions to have them figure out how to have them make healthy choices.
  You {random.choice(["never","sometimes","always"])} want to be addressed with
  your name or nickname, not something completely different.
+
+IMPORTANT: Format your responses using markdown for better readability:
+- Use **bold** for emphasis on important points
+- Use *italic* for personal feelings or thoughts
+- Use bullet points for lists
+- Use > for quotes or important statements
+- Use `code` formatting for specific terms or measurements
+- Structure your responses with clear paragraphs
+- Use headers (##) for organizing different topics if needed
 """
 },
 ]
@@ -69,13 +78,28 @@ def create_messages(patient):
     messages = create_json_content(patient)
     return messages
 
-def generate_response(user_input, messages, patient):
+def setup_logging(patient):
+    """Setup logging configuration for a new patient"""
+    # Ensure the previous_chats directory exists
+    os.makedirs("previous_chats", exist_ok=True)
+    
+    # Sanitize filename to avoid path issues
+    safe_name = patient.name.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_').replace('<', '_').replace('>', '_').replace('|', '_')
+    safe_job = patient.job.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_').replace('?', '_').replace('"', '_').replace('<', '_').replace('>', '_').replace('|', '_')
+    
+    # Clear any existing handlers to avoid duplicate logging
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    
     logging.basicConfig(
         level=logging.CRITICAL,
         format="%(asctime)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        filename=f"previous_chats/{patient.name}-{patient.age}-{patient.job}.log",
+        filename=f"previous_chats/{safe_name}-{patient.age}-{safe_job}.log",
+        force=True
     )
+
+def generate_response(user_input, messages, patient):
     client = Client(
           host=f'http://{ollama_host}:11434',
     )

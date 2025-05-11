@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PETE</title>
+  <title>PETE - Tutor</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet">
   <style>
@@ -97,12 +97,37 @@
     .message.ai em {
       font-style: italic;
     }
+    .message.ai table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.5rem 0;
+    }
+    .message.ai th, .message.ai td {
+      border: 1px solid #e2e8f0;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    .message.ai th {
+      background-color: #f8fafc;
+      font-weight: 600;
+    }
     .input-container {
       display: flex;
+      flex-direction: column;
       padding: 1rem;
       background-color: #ffffff;
       border-top: 1px solid #e5e7eb;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .file-upload-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background-color: #f8fafc;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -139,12 +164,8 @@
 <body class="bg-gray-50">
   <div class="chat-container">
     <header class="bg-blue-600 text-white p-4 text-center shadow-lg">
-      <h1 class="text-2xl font-bold">PETE - Chat</h1>
-      <h2 class="text-sm mt-1">Name: {{ name }} || Age: {{ age }} || Job: {{ job }}</h2>
-      <div class="mt-2">
-        <a href="/chat/reload" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded text-sm mr-2 transition-colors">New Patient</a>
-        <a href="/suggestions" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded text-sm transition-colors">Tutor</a>
-      </div>
+      <h1 class="text-2xl font-bold">PETE - Tutor</h1>
+      <h2 class="text-sm mt-1"><a href="/chat" class="text-blue-200 hover:text-white transition-colors">← Back to chat</a></h2>
     </header>
     <main class="flex flex-col flex-grow p-4">
       <div id="chat-history" class="chat-history mb-4">
@@ -158,9 +179,22 @@
         </div>
       </div>
       <div class="input-container">
+        <!-- File Upload Section -->
+        <div class="file-upload-container">
+          <input type="file" id="file-input" accept=".log,.txt" class="hidden">
+          <button type="button" id="file-upload-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500">
+            Choose File (.log/.txt)
+          </button>
+          <span id="file-name" class="text-sm text-gray-600 flex-grow"></span>
+          <button type="button" id="upload-btn" class="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500" style="display: none;">
+            Upload File
+          </button>
+        </div>
+
+        <!-- Chat Input Section -->
         <form method="POST" id="chat-form" class="flex w-full">
           {% csrf_token %}
-          <input id="chat-input" type="text" class="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Type your message here...">
+          <input id="chat-input" type="text" class="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ask about MITI interviewing techniques or upload a conversation for feedback...">
           <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-r-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">Send</button>
         </form>
       </div>
@@ -173,6 +207,10 @@
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatHistory = document.getElementById('chat-history');
+    const fileInput = document.getElementById('file-input');
+    const fileUploadBtn = document.getElementById('file-upload-btn');
+    const fileName = document.getElementById('file-name');
+    const uploadBtn = document.getElementById('upload-btn');
     const typingIndicator = document.getElementById('typing-indicator');
 
     function showTypingIndicator() {
@@ -206,6 +244,50 @@
       chatHistory.scrollTop = chatHistory.scrollHeight;
     }
 
+    // File upload handling
+    fileUploadBtn.addEventListener('click', function() {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function() {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName.textContent = file.name;
+        uploadBtn.style.display = 'inline-block';
+      }
+    });
+
+    uploadBtn.addEventListener('click', function() {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        // Show upload message
+        addMessage(`Uploading file: ${file.name}`, true);
+
+        fetch('.', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          addMessage(data.content, false);
+
+          // Reset file input
+          fileInput.value = '';
+          fileName.textContent = '';
+          uploadBtn.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          addMessage('Error uploading file. Please try again.', false);
+        });
+      }
+    });
+
+    // Chat form handling
     chatForm.addEventListener('submit', function(event) {
       event.preventDefault();
       const message = chatInput.value.trim();
