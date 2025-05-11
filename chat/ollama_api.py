@@ -2,6 +2,7 @@ import csv
 import ollama
 import os
 import random
+import logging
 from faker import Faker
 from ollama import Client
 
@@ -46,6 +47,8 @@ You're name is {patient.name} and are {patient.age} and a professional
  {patient.spirits} level of happiness. Only describe the name and general information about the
  individual you create, you're job is to work with the person asking the
  questions to have them figure out how to have them make healthy choices.
+ You {random.choice(["never","sometimes","always"])} want to be addressed with
+ your name or nickname, not something completely different.
 """
 },
 ]
@@ -67,11 +70,18 @@ def create_messages(patient):
     return messages
 
 def generate_response(user_input, messages, patient):
+    logging.basicConfig(
+        level=logging.CRITICAL,
+        format="%(asctime)s %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename=f"previous_chats/{patient.name}-{patient.age}-{patient.job}.log",
+    )
     client = Client(
           host=f'http://{ollama_host}:11434',
     )
     response = client.chat(model=model_name, messages=messages)
     messages.append({"role": "user", "content": user_input})
+    logging.critical(f"Me: {user_input}")
     response = client.chat(model=model_name, messages=messages)
     answer = response.message.content
     messages.append({"role": "assistant", "content": answer})
@@ -82,4 +92,5 @@ def generate_response(user_input, messages, patient):
                    "spirits": patient.spirits,
                    "help": patient.intensity
                   }
+    logging.critical(f"{patient.name}: {answer}")
     return output_dict
