@@ -1,4 +1,5 @@
-# troublesome patient
+# PETE
+(Patient Engagement Training Experience)
 
 ## Scope
 
@@ -18,7 +19,7 @@ helps the Students ask questions and figure out what is wrong with their patient
    ```
 4. Check out the repository:
    ```bash
-   git clone https://github.com/jjasghar/troublesome-patient
+   git clone https://github.com/jjasghar/pete
    cd troublesome-patient
    ```
 5. Run the `./setup.sh` script. (you only need to do it "once")
@@ -54,7 +55,7 @@ helps the Students ask questions and figure out what is wrong with their patient
    python manage.py runserver
    ```
 
-Open: Visit <http://localhost:8000/chat/> to start chatting with your Troublesome Patient
+Open: Visit <http://localhost:8000/chat/> to start chatting with your pete!
 
 ## Future plans
 
