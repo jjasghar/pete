@@ -6,6 +6,15 @@
 This is a helper application for Medical Students to work on their Motiviational Interviewing. The application
 helps the Students ask questions and figure out what is wrong with their patient.
 
+## Features
+
+- **Chat Interface**: Interactive chat with AI-generated patients for practicing motivational interviewing
+- **Profile Types**: Switch between Adult and Pediatric patient profiles
+  - **Adult Profiles**: Patients aged 21-60 with various professional backgrounds
+  - **Pediatric Profiles**: Patients aged 2-18 (preschoolers, elementary students, students)
+- **New Patient Generation**: Generate new patients with different characteristics
+- **Tutor Mode**: Get suggestions and guidance for improving your interviewing skills
+
 ## Podman install
 
 1. Have [ollama][ollama] installed.

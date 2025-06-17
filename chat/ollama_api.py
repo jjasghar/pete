@@ -17,6 +17,7 @@ class Patient:
 
 fake = Faker()
 model_name = 'granite3.2:latest'
+# Default to adult profiles, will be updated based on selection
 csv_file = "profiles/adult_patient_profiles.csv"
 ollama_host = os.environ.get('OLLAMA_SELF_HOST', '127.0.0.1')
 
@@ -28,15 +29,36 @@ def read_csv(csv_file):
             data_list.append(row)
     return data_list
 
-data_list = read_csv(csv_file)
-individuals = random.choices(data_list,k=4)
+# Global variables to store profile data
+adult_data_list = None
+pediatric_data_list = None
+current_individuals = None
 
-def create_json_content(patient):
+def get_profile_data(profile_type="adult"):
+    """Get profile data based on the selected profile type"""
+    global adult_data_list, pediatric_data_list
+    
+    if profile_type == "pediatric":
+        if pediatric_data_list is None:
+            pediatric_data_list = read_csv("profiles/child_patient_profiles.csv")
+        return pediatric_data_list
+    else:  # adult
+        if adult_data_list is None:
+            adult_data_list = read_csv("profiles/adult_patient_profiles.csv")
+        return adult_data_list
+
+def create_json_content(patient, profile_type="adult"):
+        global current_individuals
+        
+        # Get the appropriate profile data
+        data_list = get_profile_data(profile_type)
+        current_individuals = random.choices(data_list, k=4)
+        
         messages = [
 {"role": "user", "content": f"""
 You are a patient designed for a doctor to practice Motivation Interviewing based off of the following individuals:
 
-{individuals}
+{current_individuals}
 
 """
 },
@@ -63,19 +85,39 @@ IMPORTANT: Format your responses using markdown for better readability:
 ]
         return messages
 
-def create_patient():
-    age = random.randrange(21,60)
-    level = random.choice(["minor","major","critical"])
-    intensity = random.choice(["low","medium","high"])
-    name = fake.name()
-    job = fake.job()
-    spirits = random.choice(["low","medium","high"])
+def create_patient(profile_type="adult"):
+    if profile_type == "pediatric":
+        # Pediatric patients: ages 2-18, different job descriptions
+        age = random.randrange(2, 19)
+        level = random.choice(["minor","major","critical"])
+        intensity = random.choice(["low","medium","high"])
+        name = fake.name()
+        
+        # More appropriate job descriptions for children
+        if age < 5:
+            job = "preschooler"
+        elif age < 12:
+            job = "elementary student"
+        elif age < 18:
+            job = "student"
+        else:
+            job = "student"
+            
+        spirits = random.choice(["low","medium","high"])
+    else:
+        # Adult patients: ages 21-60, with jobs
+        age = random.randrange(21, 60)
+        level = random.choice(["minor","major","critical"])
+        intensity = random.choice(["low","medium","high"])
+        name = fake.name()
+        job = fake.job()
+        spirits = random.choice(["low","medium","high"])
 
-    patient = Patient(age,level, intensity, name, job, spirits)
+    patient = Patient(age, level, intensity, name, job, spirits)
     return patient
 
-def create_messages(patient):
-    messages = create_json_content(patient)
+def create_messages(patient, profile_type="adult"):
+    messages = create_json_content(patient, profile_type)
     return messages
 
 def setup_logging(patient):

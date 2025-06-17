@@ -141,9 +141,16 @@
     <header class="bg-blue-600 text-white p-4 text-center shadow-lg">
       <h1 class="text-2xl font-bold">PETE - Chat</h1>
       <h2 class="text-sm mt-1">Name: {{ name }} || Age: {{ age }} || Job: {{ job }}</h2>
+      <div class="mt-2 mb-2">
+        <span class="inline-block bg-yellow-600 text-white px-3 py-1 rounded text-sm font-semibold">
+          Current Profile: {{ profile_type|title }}
+        </span>
+      </div>
       <div class="mt-2">
         <a href="/chat/reload" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded text-sm mr-2 transition-colors">New Patient</a>
-        <a href="/suggestions" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded text-sm transition-colors">Tutor</a>
+        <a href="/suggestions" class="bg-blue-700 hover:bg-blue-800 text-white px-3 py-1 rounded text-sm mr-2 transition-colors">Tutor</a>
+        <a href="/chat/adult" class="{% if profile_type == 'adult' %}bg-green-800 ring-2 ring-white{% else %}bg-green-700 hover:bg-green-800{% endif %} text-white px-3 py-1 rounded text-sm mr-2 transition-colors">Adult Profiles</a>
+        <a href="/chat/pediatric" class="{% if profile_type == 'pediatric' %}bg-purple-800 ring-2 ring-white{% else %}bg-purple-700 hover:bg-purple-800{% endif %} text-white px-3 py-1 rounded text-sm transition-colors">Pediatric Profiles</a>
       </div>
     </header>
     <main class="flex flex-col flex-grow p-4">

@@ -17,13 +17,21 @@ def chat_view(request):
     global patient
     global messages
 
+    # Get profile type from session, default to adult
+    profile_type = request.session.get('profile_type', 'adult')
+
     if patient is None:
-        patient = create_patient()
-        messages = create_messages(patient)
+        patient = create_patient(profile_type)
+        messages = create_messages(patient, profile_type)
         # Setup logging for the new patient
         setup_logging(patient)
 
-    context = {"name": patient.name, "age": patient.age, "job": patient.job}
+    context = {
+        "name": patient.name, 
+        "age": patient.age, 
+        "job": patient.job,
+        "profile_type": profile_type
+    }
     if request.method == "POST":
        prompt = request.POST["message"]
        response = generate_response(prompt, messages, patient)
@@ -42,3 +50,25 @@ def reload_chat(request):
     patient = None
     response = chat_view(request)
     return response
+
+def switch_to_adult(request):
+    """Switch to adult profiles"""
+    global patient
+    global messages
+    
+    request.session['profile_type'] = 'adult'
+    messages = None
+    patient = None
+    
+    return reload_chat(request)
+
+def switch_to_pediatric(request):
+    """Switch to pediatric profiles"""
+    global patient
+    global messages
+    
+    request.session['profile_type'] = 'pediatric'
+    messages = None
+    patient = None
+    
+    return reload_chat(request)

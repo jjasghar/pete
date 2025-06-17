@@ -19,13 +19,15 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from chat.views import chat_view, reload_chat
+from chat.views import chat_view, reload_chat, switch_to_adult, switch_to_pediatric
 from suggestions.views import suggestions_view
 
 urlpatterns = [
     path('', lambda req: redirect('/chat')),
     path('chat/', chat_view, name='chat'),
     path('chat/reload', reload_chat, name='reload_chat'),
+    path('chat/adult', switch_to_adult, name='switch_to_adult'),
+    path('chat/pediatric', switch_to_pediatric, name='switch_to_pediatric'),
     path('suggestions/', suggestions_view, name='suggestions'),
 ]
 
