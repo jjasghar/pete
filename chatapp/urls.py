@@ -17,10 +17,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from chat.views import chat_view, reload_chat
+from suggestions.views import suggestions_view
 
 urlpatterns = [
     path('', lambda req: redirect('/chat')),
     path('chat/', chat_view, name='chat'),
     path('chat/reload', reload_chat, name='reload_chat'),
+    path('suggestions/', suggestions_view, name='suggestions'),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
