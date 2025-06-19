@@ -1,81 +1,132 @@
 # PETE
 (Patient Engagement Training Experience)
 
-## Scope
+## Overview
 
-This is a helper application for Medical Students to work on their Motiviational Interviewing. The application
-helps the Students ask questions and figure out what is wrong with their patient.
+PETE is a Django web application designed to help medical students and healthcare professionals practice **Motivational Interviewing** skills through AI-powered patient interactions. The application provides a safe, controlled environment for learning and improving communication techniques with virtual patients.
 
 ## Features
 
-- **Chat Interface**: Interactive chat with AI-generated patients for practicing motivational interviewing
-- **Profile Types**: Switch between Adult and Pediatric patient profiles
-  - **Adult Profiles**: Patients aged 21-60 with various professional backgrounds
-  - **Pediatric Profiles**: Patients aged 2-18 (preschoolers, elementary students, students)
-- **New Patient Generation**: Generate new patients with different characteristics
-- **Tutor Mode**: Get suggestions and guidance for improving your interviewing skills
+### Chat Interface (`/chat/`)
+- **Interactive AI Patients**: Chat with AI-generated patients powered by Ollama (Granite 3.2 model)
+- **Realistic Patient Profiles**: Choose from adult (ages 21-60) or pediatric (ages 2-18) patient scenarios
+- **Dynamic Patient Generation**: Each session creates a unique patient with varying:
+  - Health conditions (minor, major, critical)
+  - Attitudes toward treatment (low, medium, high intensity)
+  - Emotional states (low, medium, high spirits)
+  - Professional backgrounds or age-appropriate descriptions
+- **Conversation Logging**: All interactions are automatically saved for later review
+- **Markdown Formatting**: Responses are formatted for improved readability
 
-## Podman install
+### Tutor/Suggestions Interface (`/suggestions/`)
+- **MITI-Based Feedback**: Get coaching based on Motivational Interviewing Treatment Integrity (MITI) criteria
+- **Conversation Analysis**: Upload previous chat logs (.log, .txt files) for detailed feedback
+- **Performance Improvement**: Receive specific suggestions for enhancing interviewing techniques
+- **Rubric Scoring**: Get MITI rubric evaluations of your conversations
 
-1. Have [ollama][ollama] installed.
-2. Have [podman-desktop][podman] installed.
-   ```bash
-   brew install podman-desktop
-   ```
-3. Have [podman-compose][podmancompose] installed.
-   ```bash
-   brew install podman-compose
-   ```
-4. Check out the repository:
-   ```bash
-   git clone https://github.com/jjasghar/pete
-   cd troublesome-patient
-   ```
-5. Run the `./setup.sh` script. (you only need to do it "once")
-6. Start and stop the application with `./start.sh` and `./stop.sh` to your hearts content.
+### Patient Profile Types
+- **Adult Profiles**: Professional adults with various health challenges including:
+  - Substance use concerns (caffeine, alcohol, nicotine)
+  - Chronic conditions (diabetes, hypertension)
+  - Lifestyle-related issues (diet, exercise, sleep)
+  - Preventive care scenarios
+- **Pediatric Profiles**: Age-appropriate scenarios for children including:
+  - Screen time and sleep issues
+  - Physical activity and nutrition
+  - Age-specific behavioral concerns
 
-## Manual install
+## Installation
 
-0. Have [ollama][ollama] installed and `granite3.2` installed.
-   ```bash
-   ollama run granite3.2:latest
-   ```
+### Option 1: Containerized Deployment (Recommended)
 
-1. Clone the Repo:
-   ```bash
-   git clone https://github.com/jjasghar/troublesome-patient
-   cd troublesome-patient
-   ```
+**Prerequisites:**
+- [Ollama](https://ollama.com) installed
+- [Podman Desktop](https://podman-desktop.io) or Docker installed
+- [Podman Compose](https://github.com/containers/podman-compose) installed
 
-2. Set Up Virtual Environment:
-   ```bash
-   python3 -m venv venv
-   source env/bin/activate
-   ```
+```bash
+# Install podman-desktop and podman-compose (macOS)
+brew install podman-desktop podman-compose
 
-4. Install Dependencies, and migrate the database.
-   ```bash
-   pip install -r requirements.txt
-   python manage.py migrate
-   ```
+# Clone the repository
+git clone https://github.com/jjasghar/pete
+cd pete
 
-4. Run the Server:
-   ```bash
-   python manage.py runserver
-   ```
+# Run setup (one-time only)
+./setup.sh
 
-Open: Visit <http://localhost:8000/chat/> to start chatting with your pete!
+# Start the application
+./start.sh
 
-## Future plans
+# Stop the application
+./stop.sh
+```
 
-- A way to export/save the conversation.
-- Another "app" to take the log and give suggestions on ways to improve the conversation.
+### Option 2: Manual Installation
+
+**Prerequisites:**
+- Python 3.8+
+- [Ollama](https://ollama.com) with Granite 3.2 model
+
+```bash
+# Install and run Ollama with Granite 3.2
+ollama run granite3.2:latest
+
+# Clone the repository
+git clone https://github.com/jjasghar/pete
+cd pete
+
+# Set up virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run database migrations
+python manage.py migrate
+
+# Start the development server
+python manage.py runserver
+```
+
+## Usage
+
+1. **Access the Application**: Visit `http://localhost:8000`
+2. **Practice Interviews**: Go to `/chat/` to start practicing with AI patients
+3. **Switch Profile Types**: Use the interface to toggle between adult and pediatric patients
+4. **Generate New Patients**: Reload to get a new patient with different characteristics
+5. **Get Feedback**: Visit `/suggestions/` to upload conversation logs and receive MITI-based coaching
+6. **Review Conversations**: Check the `previous_chats/` directory for saved conversation logs
+
+## Technical Details
+
+- **Backend**: Django 5.2 with SQLite database
+- **AI Model**: Granite 3.2 via Ollama
+- **Patient Data**: CSV-based profile system with realistic scenarios
+- **Logging**: Automatic conversation logging with timestamps
+- **File Processing**: Support for .log and .txt file uploads for analysis
+- **Containerization**: Multi-service setup with Ollama and web application containers
+
+## Configuration
+
+- **Ollama Host**: Set `OLLAMA_SELF_HOST` environment variable for custom Ollama instances
+- **Patient Profiles**: Modify CSV files in `/profiles/` to customize patient scenarios
+- **Logging**: Conversations are saved in `/previous_chats/` directory
+
+## Future Enhancements
+
+- Enhanced conversation export capabilities
+- Additional patient profile categories
+- Expanded MITI rubric integration
+- Progress tracking and analytics
+- Multi-user support with authentication
 
 ## License & Authors
 
-If you would like to see the detailed LICENSE click [here](./LICENSE).
+Licensed under the Apache License, Version 2.0. See [LICENSE](./LICENSE) for details.
 
-- Author: JJ Asghar <awesome@ibm.com>
+**Author**: JJ Asghar <awesome@ibm.com>
 
 ```text
 Copyright:: 2025- IBM, Inc
@@ -93,6 +144,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-[ollama]: https://ollama.com
-[podman]: https://podman-desktop.io
-[podmancompose]: https://github.com/containers/podman-compose?tab=readme-ov-file#installation
+---
+
+**About MITI**: The Motivational Interviewing Treatment Integrity (MITI) is a standardized coding system used to evaluate the quality and fidelity of motivational interviewing sessions. It helps practitioners improve their skills through structured feedback and assessment.
